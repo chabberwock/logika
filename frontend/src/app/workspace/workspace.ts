@@ -27,12 +27,14 @@ import {FormsModule} from "@angular/forms";
 import {MatIconModule} from "@angular/material/icon";
 import hljs from 'highlight.js';
 import {CodeJarContainer, NgxCodeJarComponent} from "ngx-codejar";
+import {MatTooltipModule} from "@angular/material/tooltip";
 
 @Component({
   selector: 'app-workspace',
   imports: [DynamicTableComponent, FilterContainer, MatSidenavModule,
       MatButtonModule, MatListModule, NgxJsonTreeviewComponent, ScrollingModule,
-      MatButtonToggleModule, FormsModule, MatIconModule, NgxCodeJarComponent
+      MatButtonToggleModule, FormsModule, MatIconModule, NgxCodeJarComponent,
+      MatTooltipModule
   ],
   templateUrl: './workspace.html',
   styleUrl: './workspace.css'

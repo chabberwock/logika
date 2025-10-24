@@ -2,23 +2,36 @@
     <!-- Фиксированный сайдбар -->
     <mat-sidenav mode="side" opened class="sidenav">
 
-        <mat-button-toggle-group
-                [(ngModel)]="viewMode"
-                aria-label="View"
-                [hideSingleSelectionIndicator]="true"
-        >
-            <mat-button-toggle value="log">Log</mat-button-toggle>
-            <mat-button-toggle value="summary">Summary</mat-button-toggle>
-            <mat-button-toggle value="console">Console</mat-button-toggle>
-            <mat-button-toggle value="settings">Settings</mat-button-toggle>
-        </mat-button-toggle-group>
-
         @for (filterName of objectKeys(filters); track filterName) {
         <app-filter-container [name]="filterName" [settings]="filters[filterName]"></app-filter-container>
         }
         <div>
             <button matButton="outlined" (click)="update()">Filter</button>
         </div>
+
+    </mat-sidenav>
+    <mat-sidenav mode="side" opened class="viewmode">
+
+        <mat-button-toggle-group
+                vertical
+                [(ngModel)]="viewMode"
+                aria-label="View"
+                [hideSingleSelectionIndicator]="true"
+        >
+            <mat-button-toggle value="log">
+                <mat-icon matTooltip="Log contents" matTooltipPosition="left" matTooltipShowDelay="1000">view_list</mat-icon>
+            </mat-button-toggle>
+            <mat-button-toggle value="summary">
+                <mat-icon matTooltip="Summary" matTooltipPosition="left" matTooltipShowDelay="1000">lightbulb</mat-icon>
+            </mat-button-toggle>
+            <mat-button-toggle value="console">
+                <mat-icon matTooltip="Console" matTooltipPosition="left" matTooltipShowDelay="1000">code</mat-icon>
+            </mat-button-toggle>
+            <mat-button-toggle value="settings">
+                <mat-icon matTooltip="Settings" matTooltipPosition="left" matTooltipShowDelay="1000">settings</mat-icon>
+            </mat-button-toggle>
+        </mat-button-toggle-group>
+
 
     </mat-sidenav>
     <!-- Основной контент -->

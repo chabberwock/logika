@@ -13,8 +13,23 @@
     bottom: 0;
 }
 
+.viewmode {
+    width: 50px;
+    background: #fafafa;
+    border-left: 1px solid #ddd;
+    border-radius: 0;
+    padding: 2px;
+    position: absolute; /* фиксируем сайдбар */
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+}
+
 .content {
     margin-left: 300px; /* отступ, равный ширине сайдбара */
+    margin-right: 50px;
     min-height: 0;
 }
 

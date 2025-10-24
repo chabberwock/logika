@@ -77,3 +77,10 @@ ngx-codejar.console {
     overflow: auto;
     background-color: var(--mat-sys-background);
 }
+
+/* workspace */
+
+.viewmode mat-button-toggle-group {
+    border: none;
+    border-radius: 0;
+}
