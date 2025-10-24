@@ -1,0 +1,33 @@
+<div class="wrapper">
+    <mat-toolbar>
+        <button (click)="importProject()" matIconButton class="example-icon" aria-label="Import project">
+            <mat-icon>file_open</mat-icon>
+        </button>
+        <button (click)="openProject()" matIconButton class="example-icon" aria-label="Open project">
+            <mat-icon>folder_open</mat-icon>
+        </button>
+        <!--
+        <span class="toolbar-spacer"></span>
+        -->
+    </mat-toolbar>
+
+    <mat-tab-group animationDuration="0ms" mat-stretch-tabs="false" mat-align-tabs="start">
+        @for (p of projects; track p) {
+        <mat-tab #projectTab>
+            <ng-template mat-tab-label>
+                {{getLastPathSegment(p.dir)}}
+                @if (projectTab.isActive) {
+                <a matIconButton (click)="closeProject(p.id)">
+                    <mat-icon>close_small</mat-icon>
+                </a>
+                }
+            </ng-template>
+
+            <div class="ws-container">
+                <app-workspace [id]="p.id"></app-workspace>
+            </div>
+        </mat-tab>
+        }
+    </mat-tab-group>
+
+</div>

@@ -1,0 +1,24 @@
+<h2 mat-dialog-title>Введите пути</h2>
+<mat-dialog-content>
+    <div>
+        <span>Log file: </span>
+        @if (logFilePath) {
+        <span>{{logFilePath}}</span>
+        }
+        <button matButton (click)="selectLogFile()">Select</button>
+    </div>
+    <div>
+        <span>Project: </span>
+        @if (projectPath) {
+        <span>{{projectPath}}</span>
+        }
+        <button matButton (click)="selectProject()">Select</button>
+    </div>
+    <button matButton="outlined" (click)="onSave()">Import log file</button>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()">Отмена</button>
+    <button mat-raised-button color="primary" (click)="onSave()">Сохранить</button>
+</mat-dialog-actions>

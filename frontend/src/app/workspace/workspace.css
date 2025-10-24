@@ -1,0 +1,87 @@
+@import 'highlight.js/styles/github.css';
+
+
+.sidenav {
+    width: 300px;
+    background: #fafafa;
+    border-right: 1px solid #ddd;
+    border-radius: 0;
+    padding: 1rem;
+    position: absolute; /* фиксируем сайдбар */
+    top: 0;
+    left: 0;
+    bottom: 0;
+}
+
+.content {
+    margin-left: 300px; /* отступ, равный ширине сайдбара */
+    min-height: 0;
+}
+
+.content-inner {
+    flex: 1;
+    overflow-y: auto; /* прокрутка контента справа */
+    overflow-x: auto;
+    padding: 1rem;
+
+    background: #fff;
+    overflow-wrap: normal;
+    display: flex; /* удобно для верстки дочернего */
+    flex-direction: column;
+    min-height: 0;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+mat-list-item {
+    border-bottom: 1px solid #ddd;
+}
+
+mat-list-item.expanded {
+    height: auto;
+}
+
+.preview {
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.preview.expanded {
+    color: var(--mat-sys-on-tertiary-container);
+    background: var(--mat-sys-tertiary-container);
+}
+
+.expanded-view {
+    height: 230px;
+    overflow-y: scroll;
+    background: var(--mat-sys-secondary-container);
+    padding-left: 50px;
+}
+
+
+.src {font-size: small}
+.src .title {
+    font-weight: bold;
+}
+
+.log-viewport {
+    flex: 1;
+    overflow-y: auto;
+}
+
+mat-sidenav-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+mat-sidenav-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+
+

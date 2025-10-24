@@ -1,0 +1,23 @@
+.full-width-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.status {
+    padding: 16px;
+    text-align: center;
+}
+
+.status.error {
+    color: red;
+}
+
+.tcont {
+    /* height: 100%; */ /* нужная высота */
+    overflow: auto;
+
+}
+
+td, th {
+    border: 1px #ddd solid;
+}

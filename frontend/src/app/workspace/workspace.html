@@ -1,0 +1,73 @@
+<mat-sidenav-container class="layout-container">
+    <!-- Фиксированный сайдбар -->
+    <mat-sidenav mode="side" opened class="sidenav">
+
+        <mat-button-toggle-group
+                [(ngModel)]="viewMode"
+                aria-label="View"
+                [hideSingleSelectionIndicator]="true"
+        >
+            <mat-button-toggle value="log">Log</mat-button-toggle>
+            <mat-button-toggle value="summary">Summary</mat-button-toggle>
+            <mat-button-toggle value="console">Console</mat-button-toggle>
+            <mat-button-toggle value="settings">Settings</mat-button-toggle>
+        </mat-button-toggle-group>
+
+        @for (filterName of objectKeys(filters); track filterName) {
+        <app-filter-container [name]="filterName" [settings]="filters[filterName]"></app-filter-container>
+        }
+        <div>
+            <button matButton="outlined" (click)="update()">Filter</button>
+        </div>
+
+    </mat-sidenav>
+    <!-- Основной контент -->
+    <mat-sidenav-content class="content">
+            <div [hidden]="viewMode != 'log'" class="content-inner">
+                <cdk-virtual-scroll-viewport itemSize="20" class="log-viewport">
+                    <mat-list-item *cdkVirtualFor="let row of data; let $index = index" role="listitem" [class.expanded]="isExpanded(row)">
+                        <div class="preview" (click)="toggle(row)" [class.expanded]="isExpanded(row)" [innerHTML]="collapsedView(rawData[$index])"></div>
+                        @if (isExpanded(row)) {
+                        <div class="expanded-view">
+                            <ngx-json-treeview [json]="row" [expanded]="false" />
+                            <div class="src">
+                                <div class="title">src:</div>
+                                <pre>{{rawData[$index].__text}}</pre>
+                            </div>
+                        </div>
+                        }
+                    </mat-list-item>
+                </cdk-virtual-scroll-viewport>
+            </div>
+
+            @if (viewMode == 'summary') {
+                <div class="content-inner">
+                    <pre>{{output}}</pre>
+                </div>
+            }
+
+            @if (viewMode == 'settings') {
+                <div class="content-inner">
+                    <div>
+                        <a (click)="refreshSettings()" matIconButton><mat-icon>refresh</mat-icon></a>
+                        <a (click)="saveSettings()" matIconButton><mat-icon>save</mat-icon></a>
+                        <a (click)="openProjectDirectory()" matIconButton><mat-icon>folder_open</mat-icon></a>
+                    </div>
+                    <ngx-codejar class="code-editor settings" [highlightMethod]="highlightMethod" [(code)]="settings" [showLineNumbers]="true"></ngx-codejar>
+                </div>
+            }
+
+            @if (viewMode == 'console') {
+                <div class="content-inner">
+                    <div>
+                        <a (click)="runScript()" matIconButton><mat-icon>play_arrow</mat-icon></a>
+                    </div>
+                    <ngx-codejar class="code-editor console" [highlightMethod]="highlightMethod" [(code)]="console" [showLineNumbers]="true"></ngx-codejar>
+                    <pre class="console-output">{{consoleOutput}}</pre>
+                </div>
+            }
+
+
+    </mat-sidenav-content>
+</mat-sidenav-container>
+
