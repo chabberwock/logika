@@ -2,8 +2,8 @@ function _settings()
     return {
         previewTemplate = "<span class='line-number'>{{__id}}</span> {{__text}}",
         filters = {
-            substringFilter = SubstringFilter("подстрока"),
-            levelFilter = OneOf("Уровень", "level", "levelFilter.storage"),
+            substringFilter = SubstringFilter("Substring"),
+            levelFilter = OneOf("Level", "level", "levelFilter.storage"),
             callerFilter = OneOf("Caller", "caller", "callerFilter.storage"),
         },
         init = initFunc,
