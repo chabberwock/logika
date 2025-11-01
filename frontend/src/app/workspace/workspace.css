@@ -1,0 +1,192 @@
+@import 'highlight.js/styles/github.css';
+
+
+.sidenav {
+    width: 300px;
+    background: #fafafa;
+    border-right: 1px solid #ddd;
+    border-radius: 0;
+    padding: 1rem;
+    position: absolute; /* фиксируем сайдбар */
+    top: 0;
+    left: 0;
+    bottom: 0;
+}
+
+.viewmode {
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.viewmode, .left-side-tabs {
+    width: 53px;
+    background: #fafafa;
+    border-radius: 0;
+    padding: 2px;
+    position: absolute; /* фиксируем сайдбар */
+    display: flex;
+    flex-direction: column;
+}
+
+.left-tabs-content, .viewmode, .content {
+    border-left: 1px solid #ddd;
+
+}
+
+.left-side-tabs {
+    background: #fafafa;
+}
+
+.content {
+    margin-left: 55px; /* отступ, равный ширине сайдбара */
+    margin-right: 50px;
+    min-height: 0;
+}
+
+.content-inner {
+    flex: 1;
+    overflow-y: auto; /* прокрутка контента справа */
+    overflow-x: auto;
+    padding: 2px;
+
+    background: #fff;
+    overflow-wrap: normal;
+    display: flex; /* удобно для верстки дочернего */
+    flex-direction: column;
+    min-height: 0;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+mat-list-item {
+    border-bottom: 1px solid #ddd;
+}
+
+mat-list-item.expanded {
+    height: auto;
+}
+
+.preview {
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.preview:hover {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.preview.expanded {
+    color: var(--mat-sys-on-tertiary-container);
+    background: var(--mat-sys-tertiary-container);
+}
+
+.expanded-view {
+    height: 230px;
+    overflow-y: scroll;
+    background: var(--mat-sys-secondary-container);
+    padding-left: 50px;
+}
+
+
+.src {font-size: small}
+.src .title {
+    font-weight: bold;
+}
+
+.log-viewport {
+    flex: 1;
+    overflow-y: auto;
+}
+
+mat-drawer-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+
+}
+
+mat-drawer-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+}
+
+/* context menu */
+
+workspace-context-area {
+    display: inline-grid;
+    border: 2px dashed black;
+}
+
+.workspace-context-area .workspace-context-area {
+    margin: 100px;
+    width: 200px;
+    height: 100px;
+}
+
+.workspace-menu {
+    display: inline-flex;
+    flex-direction: column;
+    min-width: 180px;
+    max-width: 280px;
+    background-color: rgb(255, 255, 255);
+    padding: 6px 0;
+}
+
+.workspace-menu-item {
+    background-color: transparent;
+    cursor: pointer;
+    border: none;
+
+    user-select: none;
+    min-width: 64px;
+    line-height: 36px;
+    padding: 0 16px;
+
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    flex: 1;
+}
+
+.workspace-menu-item:hover {
+    background-color: rgb(208, 208, 208);
+}
+
+.workspace-menu-item:active {
+    background-color: rgb(170, 170, 170);
+}
+
+/* bookmarks */
+
+.bookmarks mat-list-item {
+    cursor: pointer; /* курсор-рука */
+    transition: background-color 0.2s; /* плавное изменение фона */
+}
+
+.bookmarks .line-number {
+    display: flex;
+    margin-right: 12px;
+}
+
+.bookmarks .label {
+    display: flex;
+}
+
+
+.bookmarks .list-item-content {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+
+
+

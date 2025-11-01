@@ -1,0 +1,19 @@
+<div>
+    <h3>{{settings.title}}</h3>
+    @for (fieldName of objectKeys(settings.fields); track fieldName) {
+        @if (settings.fields[fieldName].presentation == "input") {
+            <app-field-text
+                    [title]="settings.fields[fieldName].title"
+                    [name]="fieldName"
+            ></app-field-text>
+        }
+        @if (settings.fields[fieldName].presentation == "select") {
+            <app-field-select
+                    [title]="settings.fields[fieldName].title"
+                    [name]="fieldName"
+                    [options]="settings.fields[fieldName].options"
+            ></app-field-select>
+        }
+    }
+</div>
+

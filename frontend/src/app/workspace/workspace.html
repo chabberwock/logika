@@ -1,0 +1,141 @@
+<mat-drawer-container class="layout-container">
+    <!-- Фиксированный сайдбар -->
+    <mat-drawer mode="side" position="start" opened class="left-side-tabs">
+        <mat-button-toggle-group
+                vertical
+                [(ngModel)]="leftSideTab"
+                aria-label="Side Tab"
+                [hideSingleSelectionIndicator]="true"
+        >
+            <mat-button-toggle value="filters">
+                <mat-icon matTooltip="Filter" matTooltipPosition="left" matTooltipShowDelay="1000">filter_list</mat-icon>
+            </mat-button-toggle>
+            <mat-button-toggle value="bookmarks">
+                <mat-icon matTooltip="Bookmarks" matTooltipPosition="left" matTooltipShowDelay="1000">bookmarks</mat-icon>
+            </mat-button-toggle>
+        </mat-button-toggle-group>
+
+    </mat-drawer>
+    <mat-drawer mode="side" position="end" opened class="viewmode">
+
+        <mat-button-toggle-group
+                vertical
+                [(ngModel)]="viewMode"
+                aria-label="View"
+                [hideSingleSelectionIndicator]="true"
+        >
+            <mat-button-toggle value="log">
+                <mat-icon matTooltip="Log contents" matTooltipPosition="left" matTooltipShowDelay="1000">view_list</mat-icon>
+            </mat-button-toggle>
+            <mat-button-toggle value="summary">
+                <mat-icon matTooltip="Summary" matTooltipPosition="left" matTooltipShowDelay="1000">lightbulb</mat-icon>
+            </mat-button-toggle>
+            <mat-button-toggle value="console">
+                <mat-icon matTooltip="Console" matTooltipPosition="left" matTooltipShowDelay="1000">code</mat-icon>
+            </mat-button-toggle>
+            <mat-button-toggle value="settings">
+                <mat-icon matTooltip="Settings" matTooltipPosition="left" matTooltipShowDelay="1000">settings</mat-icon>
+            </mat-button-toggle>
+        </mat-button-toggle-group>
+
+
+    </mat-drawer>
+    <!-- Основной контент -->
+    <mat-drawer-content class="content">
+        <mat-drawer-container>
+            <mat-drawer mode="side" position="start" opened class="sidenav">
+                @if (leftSideTab == 'filters') {
+                    @for (filterName of objectKeys(filters); track filterName) {
+                    <app-filter-container [name]="filterName" [settings]="filters[filterName]"></app-filter-container>
+                    }
+                    <div>
+                        <button matButton="outlined" (click)="update()">Filter</button>
+                    </div>
+                }
+                @if (leftSideTab == 'bookmarks') {
+                       <div class="bookmarks">
+                           @for (k of objectKeys(bookmarks); track k) {
+                           <mat-list-item
+                                   (click)="goToLine(k)"
+                                   [cdkContextMenuTriggerFor]="bookmarksMenu"
+                                   (contextmenu)="openContextMenu($event, k)"
+                           >
+                               <div class="list-item-content">
+                                   <span class="line-number">{{k}}</span>
+                                   <span class="label">{{bookmarks[k]}}</span>
+
+                               </div>
+                           </mat-list-item>
+                           }
+                       </div>
+
+                }
+
+            </mat-drawer>
+            <mat-drawer-content>
+                <div [hidden]="viewMode != 'log'" class="content-inner">
+                    <cdk-virtual-scroll-viewport itemSize="20" class="log-viewport">
+                        <mat-list-item
+                                *cdkVirtualFor="let row of data"
+                                role="listitem"
+                                [class.expanded]="isExpanded(row)"
+                        >
+                            <div [cdkContextMenuTriggerFor]="logMenu" (contextmenu)="openContextMenu($event, row)">
+                                <div class="preview" (click)="toggle(row)" [class.expanded]="isExpanded(row)" [innerHTML]="collapsedView(row)"></div>
+                                @if (isExpanded(row)) {
+                                <div class="expanded-view">
+                                    <ngx-json-treeview [json]="row.data" [expanded]="false" />
+                                </div>
+                                }
+
+                            </div>
+                        </mat-list-item>
+                    </cdk-virtual-scroll-viewport>
+                </div>
+
+                @if (viewMode == 'summary') {
+                <div class="content-inner">
+                    <pre>{{output}}</pre>
+                </div>
+                }
+
+                @if (viewMode == 'settings') {
+                <div class="content-inner">
+                    <div>
+                        <a (click)="refreshSettings()" matIconButton><mat-icon>refresh</mat-icon></a>
+                        <a (click)="saveSettings()" matIconButton><mat-icon>save</mat-icon></a>
+                        <a (click)="openWorkspaceDirectory()" matIconButton><mat-icon>folder_open</mat-icon></a>
+                    </div>
+                    <ngx-codejar class="code-editor settings" [highlightMethod]="highlightMethod" [(code)]="settings" [showLineNumbers]="true"></ngx-codejar>
+                </div>
+                }
+
+                @if (viewMode == 'console') {
+                <div class="content-inner">
+                    <div>
+                        <a (click)="runScript()" matIconButton><mat-icon>play_arrow</mat-icon></a>
+                    </div>
+                    <ngx-codejar class="code-editor console" [highlightMethod]="highlightMethod" [(code)]="console" [showLineNumbers]="true"></ngx-codejar>
+                    <pre class="console-output">{{consoleOutput}}</pre>
+                </div>
+                }
+            </mat-drawer-content>
+        </mat-drawer-container>
+
+    </mat-drawer-content>
+</mat-drawer-container>
+
+<ng-template #logMenu>
+    <div class="workspace-menu" cdkMenu>
+        <button (click)="copyRow(selectedItem)" class="workspace-menu-item" cdkMenuItem>Copy</button>
+        <button (click)="addBookmark(selectedItem)" class="workspace-menu-item" cdkMenuItem>Bookmark</button>
+    </div>
+</ng-template>
+
+<ng-template #bookmarksMenu>
+    <div class="workspace-menu" cdkMenu>
+        <button (click)="editBookmark(selectedItem)" class="workspace-menu-item" cdkMenuItem>Edit</button>
+        <button (click)="deleteBookmark(selectedItem)" class="workspace-menu-item" cdkMenuItem>Delete</button>
+    </div>
+</ng-template>
+

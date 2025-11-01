@@ -1,0 +1,106 @@
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.line-number {
+    color: var(--mat-sys-on-primary-container);
+    background-color: var(--mat-sys-primary-container);
+    width: 50px;
+    padding-right: 10px;
+    display: inline-block;
+    text-align: right;
+}
+
+/* 1. Основной flex-контейнер вокруг workspace и CodeJar */
+app-workspace,
+.ws-container {
+    flex: 1;           /* растягиваем по доступному месту */
+    min-height: 0;     /* критично для flex-контейнера */
+    overflow: auto;    /* скролл, если контент больше */
+    display: flex;     /* если нужно, чтобы дети были flex */
+    flex-direction: column; /* чаще всего нужно для вертикального стека */
+}
+
+/* 2. mat-tab-group и внутренние tab-листы */
+mat-tab-group.mat-mdc-tab-group {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden; /* предотвратит "вылезание" содержимого */
+    display: flex;
+    flex-direction: column;
+}
+
+div.mat-mdc-tab-label-container,
+div.mat-mdc-tab-list {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+
+div.mat-mdc-text-field-wrapper,
+div.mat-mdc-form-field-infix,
+div.mat-mdc-form-field-hint-spacer {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+
+div.content-inner {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+}
+
+
+ngx-codejar {
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+ngx-codejar.console {
+    flex: none;
+    height: 50%;
+    min-height: 0;
+    overflow: auto;
+}
+
+.console-output {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    background-color: var(--mat-sys-background);
+}
+
+/* workspace */
+
+.viewmode mat-button-toggle-group, .left-side-tabs mat-button-toggle-group {
+    border: none;
+    border-radius: 0;
+}
+
+mat-drawer-content,
+mat-sidenav-content {
+    transition: none !important;
+}
+
+[cdkmenu] {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    border-radius: 8px;
+    background: white;
+    padding: 4px 0;
+    min-width: 160px;
+    overflow: hidden;
+}
+
+.bookmarks .list-item-content:hover {
+    background-color: rgba(0, 0, 0, 0.04); /* подсветка при наведении */
+}
+
+
