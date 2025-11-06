@@ -65,7 +65,7 @@ func (a *App) SelectWorkspaceDirectoryDialog() (string, error) {
 }
 
 func (a *App) Import(src string) (string, error) {
-	p := project.NewController()
+	p := project.NewWorkspace()
 	workspaceDir, err := a.workspacesDir()
 	if err != nil {
 		return "", err
@@ -107,7 +107,7 @@ func (a *App) workspacesDir() (string, error) {
 }
 
 func (a *App) Open(workspaceDir string) (string, error) {
-	p := project.NewController()
+	p := project.NewWorkspace()
 	err := p.Open(workspaceDir)
 	if err != nil {
 		return "", err

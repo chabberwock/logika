@@ -96,7 +96,7 @@ end
 -- called right after workspace is opened. used to initialize filters and collect required data
 function initFunc()
     -- Populate filters and alerts
-    q = query.new({})
+    q = query.new()
     for row in q:rows() do
         for i, c in pairs(collectors) do
             c:onCollect(row)

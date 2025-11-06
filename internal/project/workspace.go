@@ -37,7 +37,7 @@ type Workspace struct {
 	bookmarksMu     sync.Mutex
 }
 
-func NewController() *Workspace {
+func NewWorkspace() *Workspace {
 	return new(Workspace)
 }
 
@@ -48,7 +48,11 @@ func (c *Workspace) ID() string {
 }
 
 func (c *Workspace) Query(filters map[string]any, offset, limit int) ([]map[string]any, error) {
-	var resp []map[string]any
+	f, err := os.Open(filepath.Join(c.dir, logFileName))
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
 	L, err := c.lua(&bytes.Buffer{})
 	if err != nil {
 		return nil, err
@@ -58,42 +62,24 @@ func (c *Workspace) Query(filters map[string]any, offset, limit int) ([]map[stri
 	if err != nil {
 		return nil, err
 	}
-	var matcherErr error
-	matcher := func(doc *document.Document) bool {
-		res, err := c.applyPostFilters(L, appFilters, doc.AsMap(), filters)
-		if err != nil {
-			matcherErr = err
-			return false
-		}
-		return res
+	filter := func(row map[string]any) (bool, error) {
+		return c.applyPostFilters(L, appFilters, row, filters)
 	}
-	q := query.NewQuery(DataCollectionName).MatchFunc(matcher).Sort(query.SortOption{Field: "line"})
-	if offset > 0 {
-		q = q.Skip(offset)
+	reader := NewLogReader(f)
+	reader.Filter = filter
+	var lines []map[string]any
+	for reader.Next() {
+		lines = append(lines, reader.Row())
 	}
-	if limit > 0 {
-		q = q.Limit(limit)
-	}
-	err = c.db.ForEach(q, func(doc *document.Document) bool {
-		resp = append(resp, doc.AsMap())
-		return true
-	})
-	if err != nil {
-		return nil, err
-	}
-	if matcherErr != nil {
-		return nil, matcherErr
-	}
-	return resp, nil
+	return lines, reader.Err()
 }
 
 func (c *Workspace) lua(buf *bytes.Buffer) (*lua.LState, error) {
 	L := lua.NewState()
 	L.SetGlobal("_store", L.NewFunction(c.luaStoreData))
 	L.SetGlobal("_load", L.NewFunction(c.luaLoadData))
-	L.SetGlobal("_ranges", L.NewFunction(c.luaRanges))
 	L.SetGlobal("_bookmark", L.NewFunction(c.luaBookmark))
-	registerQueryType(L, c.db)
+	registerQueryType(L, filepath.Join(c.dir, logFileName))
 
 	L.SetGlobal("print", L.NewFunction(func(L *lua.LState) int {
 		top := L.GetTop()
@@ -134,56 +120,6 @@ func (c *Workspace) luaLoadData(L *lua.LState) int {
 	return 1
 }
 
-func (c *Workspace) luaRanges(L *lua.LState) int {
-	key := L.CheckString(1)
-	value := L.CheckString(2)
-	titleField := L.CheckString(3)
-
-	firstLine, err := c.db.FindFirst(query.
-		NewQuery(DataCollectionName).
-		Sort(query.SortOption{Field: "line", Direction: 1}).
-		Limit(1))
-	if err != nil {
-		L.RaiseError(err.Error())
-		return 1
-	}
-
-	prev := firstLine
-	tbl := L.NewTable()
-	idx := 1
-	q := query.NewQuery(DataCollectionName).Where(query.Field(key).Eq(value))
-	c.db.ForEach(q, func(doc *document.Document) bool {
-		if doc.ObjectId() == prev.ObjectId() {
-			return true
-		}
-		m, err := doRange(prev, doc, titleField, false)
-		if err != nil {
-			L.RaiseError(err.Error())
-			return false
-		}
-		tbl.Insert(idx, goToLuaValue(L, m))
-		prev = doc
-		idx++
-		return true
-	})
-	lastLine, err := c.db.FindFirst(query.
-		NewQuery(DataCollectionName).
-		Sort(query.SortOption{Field: "line", Direction: -1}).
-		Limit(1))
-	if err != nil {
-		L.RaiseError(err.Error())
-		return 1
-	}
-	m, err := doRange(prev, lastLine, titleField, true)
-	if err != nil {
-		L.RaiseError(err.Error())
-		return 1
-	}
-	tbl.Insert(idx, goToLuaValue(L, m))
-	L.Push(tbl)
-	return 1
-}
-
 func (c *Workspace) luaBookmark(L *lua.LState) int {
 	line := L.CheckString(1)
 	label := L.CheckString(2)
@@ -191,19 +127,6 @@ func (c *Workspace) luaBookmark(L *lua.LState) int {
 		L.RaiseError(err.Error())
 	}
 	return 0
-}
-
-func doRange(left, right *document.Document, titleField string, isLast bool) (map[string]string, error) {
-	m := map[string]string{
-		"title":     left.Get(titleField).(string),
-		"startLine": fmt.Sprintf("%d", left.Get("line").(int64)),
-	}
-	if isLast {
-		m["endLine"] = fmt.Sprintf("%d", right.Get("line").(int64))
-	} else {
-		m["endLine"] = fmt.Sprintf("%d", right.Get("line").(int64)-1)
-	}
-	return m, nil
 }
 
 func (c *Workspace) LoadData(key string) (v any, err error) {
@@ -315,7 +238,7 @@ func (c *Workspace) Import(src, destDir string) error {
 	if err := os.WriteFile(filepath.Join(destDir, luaFileName), defaultWorkspaceConfig, 0755); err != nil {
 		return err
 	}
-	if err := importLogFile(logfilePath, destDir); err != nil {
+	if err := initSettings(destDir); err != nil {
 		return err
 	}
 	return nil
