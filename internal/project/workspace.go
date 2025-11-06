@@ -62,11 +62,25 @@ func (c *Workspace) Query(filters map[string]any, offset, limit int) ([]map[stri
 	if err != nil {
 		return nil, err
 	}
-	filter := func(row map[string]any) (bool, error) {
-		return c.applyPostFilters(L, appFilters, row, filters)
-	}
 	reader := NewLogReader(f)
-	reader.Filter = filter
+	if filterExpr, exists := filters["quickfilter"]; exists {
+		if fn, err := c.defineQuickFilters(L, filterExpr.(string)); err == nil {
+			reader.Filter = func(row map[string]any) (bool, error) {
+				data, ok := row["data"].(map[string]any)
+				if !ok {
+					return false, fmt.Errorf("bad data passed to quick filter")
+				}
+				data["_line"] = row["line"]
+				return c.applyQuickFilter(L, fn, data)
+			}
+		} else {
+			return nil, err
+		}
+	} else {
+		reader.Filter = func(row map[string]any) (bool, error) {
+			return c.applyPostFilters(L, appFilters, row, filters)
+		}
+	}
 	var lines []map[string]any
 	for reader.Next() {
 		lines = append(lines, reader.Row())
@@ -185,6 +199,31 @@ func (c *Workspace) applyPostFilters(L *lua.LState, f map[string]Filter, data ma
 	return true, nil
 }
 
+func (c *Workspace) defineQuickFilters(L *lua.LState, expr string) (*lua.LFunction, error) {
+	fn := "function _quickfilter() return " + expr + " end"
+	if err := L.DoString(fn); err != nil {
+		return nil, err
+	}
+	return L.GetGlobal("_quickfilter").(*lua.LFunction), nil
+}
+
+func (c *Workspace) applyQuickFilter(L *lua.LState, fn *lua.LFunction, row map[string]any) (bool, error) {
+	L.SetFEnv(fn, goToLuaValue(L, row))
+	if err := L.CallByParam(lua.P{
+		Fn:      fn,
+		NRet:    1,
+		Protect: true,
+	}); err != nil {
+		return false, err
+	}
+	filterResult, ok := L.Get(-1).(lua.LBool)
+	L.Pop(1)
+	if !ok || filterResult == lua.LFalse {
+		return false, nil
+	}
+	return true, nil
+}
+
 func (c *Workspace) Close() error {
 	return c.db.Close()
 }
@@ -214,6 +253,8 @@ func goToLuaValue(L *lua.LState, v interface{}) lua.LValue {
 	case float64:
 		return lua.LNumber(val)
 	case int64:
+		return lua.LNumber(val)
+	case int:
 		return lua.LNumber(val)
 	case bool:
 		return lua.LBool(val)

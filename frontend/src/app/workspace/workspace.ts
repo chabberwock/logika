@@ -23,7 +23,7 @@ import {MatListModule} from "@angular/material/list";
 import {NgxJsonTreeviewComponent} from "ngx-json-treeview";
 import {CdkVirtualScrollViewport, ScrollingModule} from "@angular/cdk/scrolling";
 import {MatButtonToggleGroup, MatButtonToggleModule} from "@angular/material/button-toggle";
-import {FormsModule} from "@angular/forms";
+import {FormControl, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatIconModule} from "@angular/material/icon";
 import hljs from 'highlight.js';
 import {CodeJarContainer, NgxCodeJarComponent} from "ngx-codejar";
@@ -35,13 +35,17 @@ import {ClipboardSetText} from "../../../wailsjs/runtime";
 import {GetValue} from "../get-value/get-value";
 import {first, firstValueFrom} from "rxjs";
 import {AddBookmark, Bookmarks, DeleteBookmark} from "../../../wailsjs/go/app/Bookmarks";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatInputModule} from "@angular/material/input";
 
 @Component({
   selector: 'app-workspace',
   imports: [DynamicTableComponent, FilterContainer, MatSidenavModule,
       MatButtonModule, MatListModule, NgxJsonTreeviewComponent, ScrollingModule,
       MatButtonToggleModule, FormsModule, MatIconModule, NgxCodeJarComponent,
-      MatTooltipModule,CdkMenuModule
+      MatTooltipModule,CdkMenuModule,
+      MatFormFieldModule, MatInputModule,
+      ReactiveFormsModule,
   ],
   templateUrl: './workspace.html',
   styleUrl: './workspace.css'
@@ -74,6 +78,7 @@ export class Workspace {
     selectedItem: any;
 
     bookmarks: any = {};
+    public quickFilter = new FormControl('');
 
     public dialog: MatDialog = inject(MatDialog);
     private ngZone: NgZone = inject(NgZone);
@@ -106,6 +111,12 @@ export class Workspace {
         await this.refreshSettings();
         this.output = await LuaOutput(this.id);
         await this.updateBookmarks();
+
+        this.quickFilter.valueChanges.subscribe(() => {
+            if (this.quickFilter.invalid) {
+                this.quickFilter.setErrors(null);
+            }
+        })
     }
 
     async update() {
@@ -115,13 +126,15 @@ export class Workspace {
 
             this.data = JSON.parse(await Query(this.id, params, 0, 0));
             this.itemHeights = [];
-            this.data.forEach((row: any) => {
-                if (row == this.expandedElement) {
-                    this.itemHeights.push(250)
-                } else {
-                    this.itemHeights.push(20);
-                }
-            });
+            if (this.data) {
+                this.data.forEach((row: any) => {
+                    if (row == this.expandedElement) {
+                        this.itemHeights.push(250)
+                    } else {
+                        this.itemHeights.push(20);
+                    }
+                });
+            }
             this.total = this.data.length;
             console.log("total: ", this.total);
 
@@ -130,19 +143,49 @@ export class Workspace {
         }
     }
 
+    async applyQuickFilter() {
+        try {
+            let params = "{}"
+            this.quickFilter.setErrors(null);
+            if (this.quickFilter.value != "") {
+                params = JSON.stringify({quickfilter:this.quickFilter.value});
+            }
+            this.data = JSON.parse(await Query(this.id, params, 0, 0));
+            this.itemHeights = [];
+            if (this.data) {
+                this.data.forEach((row: any) => {
+                    if (row == this.expandedElement) {
+                        this.itemHeights.push(250)
+                    } else {
+                        this.itemHeights.push(20);
+                    }
+                });
+            }
+
+        } catch (e) {
+            this.quickFilter.setErrors({serverError: e});
+        }
+    }
+
     queryParams(): any {
         let params: any = {};
-        this.filterContainers.forEach(c => {
-            const val = c.value();
-            if (val !== undefined) {
-                params[c.name] = val;
-            }
-        });
+        if (this.filterContainers) {
+            this.filterContainers.forEach(c => {
+                const val = c.value();
+                if (val !== undefined) {
+                    params[c.name] = val;
+                }
+            });
+        }
         return params;
     }
 
     isExpanded(row: any): boolean {
         return row == this.expandedElement;
+    }
+
+    isBookmarked(row: any): boolean {
+        return typeof this.bookmarks[row.line] != "undefined"
     }
 
     toggle(row: any) {

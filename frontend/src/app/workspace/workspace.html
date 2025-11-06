@@ -1,3 +1,21 @@
+<div class="quick-filter-container">
+    <mat-form-field subscriptSizing="dynamic" autocapitalize="off">
+        <mat-label>Quick filter</mat-label>
+        <input matInput type="text" [formControl]="quickFilter">
+        <button matPrefix matIconButton aria-label="Clear" (click)="applyQuickFilter()">
+            <mat-icon>play_arrow</mat-icon>
+        </button>
+
+        @if (quickFilter) {
+        <button matSuffix matIconButton aria-label="Clear" (click)="quickFilter.setValue('')">
+            <mat-icon>close</mat-icon>
+        </button>
+        }
+        @if (quickFilter.hasError('serverError')) {
+        <mat-error>{{quickFilter.getError('serverError')}}</mat-error>
+        }
+    </mat-form-field>
+</div>
 <mat-drawer-container class="layout-container">
     <!-- Фиксированный сайдбар -->
     <mat-drawer mode="side" position="start" opened class="left-side-tabs">
@@ -81,7 +99,7 @@
                                 [class.expanded]="isExpanded(row)"
                         >
                             <div [cdkContextMenuTriggerFor]="logMenu" (contextmenu)="openContextMenu($event, row)">
-                                <div class="preview" (click)="toggle(row)" [class.expanded]="isExpanded(row)" [innerHTML]="collapsedView(row)"></div>
+                                <div class="preview" (click)="toggle(row)" [class.expanded]="isExpanded(row)" [class.bookmarked]="isBookmarked(row)" [innerHTML]="collapsedView(row)"></div>
                                 @if (isExpanded(row)) {
                                 <div class="expanded-view">
                                     <ngx-json-treeview [json]="row.data" [expanded]="false" />

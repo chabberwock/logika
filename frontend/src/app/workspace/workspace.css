@@ -90,6 +90,11 @@ mat-list-item.expanded {
     padding-left: 50px;
 }
 
+.preview.bookmarked {
+    background: var(--mat-sys-primary-container) !important;
+    color: var(--mat-sys-on-primary-container) !important;
+}
+
 
 .src {font-size: small}
 .src .title {
@@ -184,6 +189,10 @@ workspace-context-area {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.quick-filter-container mat-form-field {
+    width: 100%;
 }
 
 
