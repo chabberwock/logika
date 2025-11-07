@@ -18,8 +18,10 @@ type LogReader struct {
 }
 
 func NewLogReader(f *os.File) *LogReader {
+	scanner := bufio.NewScanner(f)
+	scanner.Buffer(make([]byte, 1024*1024*10), 1024*1024*10)
 	return &LogReader{
-		scanner: bufio.NewScanner(f),
+		scanner: scanner,
 	}
 }
 
@@ -36,13 +38,13 @@ func (l *LogReader) Next() bool {
 		}
 		ok, err := l.Filter(l.current)
 		if err != nil {
-			l.currentErr = errors.Join(l.currentErr, err)
-			return false
+			break
 		}
 		if ok {
 			return true
 		}
 	}
+	l.currentErr = errors.Join(l.currentErr, l.scanner.Err())
 	return false
 }
 

@@ -70,8 +70,7 @@ func (c *Workspace) Query(filters map[string]any, offset, limit int) ([]map[stri
 				if !ok {
 					return false, fmt.Errorf("bad data passed to quick filter")
 				}
-				data["_line"] = row["line"]
-				return c.applyQuickFilter(L, fn, data)
+				return c.applyQuickFilter(L, fn, data, row["line"].(int))
 			}
 		} else {
 			return nil, err
@@ -207,8 +206,13 @@ func (c *Workspace) defineQuickFilters(L *lua.LState, expr string) (*lua.LFuncti
 	return L.GetGlobal("_quickfilter").(*lua.LFunction), nil
 }
 
-func (c *Workspace) applyQuickFilter(L *lua.LState, fn *lua.LFunction, row map[string]any) (bool, error) {
-	L.SetFEnv(fn, goToLuaValue(L, row))
+func (c *Workspace) applyQuickFilter(L *lua.LState, fn *lua.LFunction, row map[string]any, line int) (bool, error) {
+	env := goToLuaValue(L, row).(*lua.LTable)
+	env.RawSet(lua.LString("_line"), lua.LNumber(line))
+	mt := L.NewTable()
+	L.SetField(mt, "__index", L.Get(lua.GlobalsIndex)) // _G
+	L.SetMetatable(env, mt)
+	L.SetFEnv(fn, env)
 	if err := L.CallByParam(lua.P{
 		Fn:      fn,
 		NRet:    1,

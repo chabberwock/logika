@@ -48,6 +48,9 @@ func queryRows(L *lua.LState) int {
 
 	iterFn := L.NewFunction(func(L *lua.LState) int {
 		if !lq.reader.Next() {
+			if err := lq.reader.Err(); err != nil {
+				L.RaiseError("lua query error: %s", err)
+			}
 			return 0
 		}
 		L.Push(goToLuaValue(L, lq.reader.Row()))

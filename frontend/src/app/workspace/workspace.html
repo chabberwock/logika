@@ -1,7 +1,7 @@
 <div class="quick-filter-container">
-    <mat-form-field subscriptSizing="dynamic" autocapitalize="off">
+    <mat-form-field subscriptSizing="dynamic" autocomplete="off" autocorrect="off" autocapitalize="off">
         <mat-label>Quick filter</mat-label>
-        <input matInput type="text" [formControl]="quickFilter">
+        <input matInput type="text" [formControl]="quickFilter" autocapitalize="none" autocomplete="off">
         <button matPrefix matIconButton aria-label="Clear" (click)="applyQuickFilter()">
             <mat-icon>play_arrow</mat-icon>
         </button>
