@@ -9,5 +9,9 @@
   "author": {
     "name": "alexandr",
     "email": "notengine@gmail.com"
+  },
+  "info": {
+    "copyright": "Alexandr Makarov"
+
   }
 }
