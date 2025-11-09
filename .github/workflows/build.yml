@@ -18,6 +18,8 @@ jobs:
           {name: logika, platform: darwin/universal, os: macos-latest}
         ]
     runs-on: ${{ matrix.build.os }}
+    env:
+      GITHUB_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
     steps:
       - uses: actions/checkout@v2
         with:
